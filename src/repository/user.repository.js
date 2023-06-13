@@ -1,10 +1,18 @@
 const pool = require('../db');
 
-async function createUserDB(name, surname, email, pwd){
-    const client = pool.connect();
+async function createUserDB(name, surname, email, pwd) {
+    const client = await pool.connect();
     const sql = 'INSERT INTO users(name, surname, email, pwd) VALUES ($1, $2, $3, $4) RETURNING*';
-    const result = (await ((await client).query(sql, [name, surname, email, pwd]))).rows;
+    const result = (await client.query(sql, [name, surname, email, pwd])).rows;
     return result;
 };
 
-module.exports = {createUserDB};
+
+async function getUserByEmailDB(email) {
+    const client = await pool.connect();
+    const sql = 'SELECT * FROM users WHERE email = $1'
+    const result = (await client.query(sql, [email])).rows;
+    return result;
+}
+
+module.exports = { createUserDB, getUserByEmailDB };
